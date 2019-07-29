@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: source-ip-app
+spec:
+  selector:
+    matchLabels:
+      app: source-ip-app
+  template:
+    metadata:
+      labels:
+        app: source-ip-app
+    spec:
+      containers:
+      - image: k8s.gcr.io/echoserver:1.4
+        name: source-ip-app
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: source-ip-app
+spec:
+  type: ClusterIP
+  ports:
+    - name: "http-port"
+      protocol: "TCP"
+      port: 80
+      targetPort: 8080
+  selector:
+    app: source-ip-app
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/whitelist-source-range: "10.42.0.0/24"
+    ingress.kubernetes.io/whitelist-x-forwarded-for: "true"
+spec:
+  rules:
+  - host: nginx.contendo.jp
+    http:
+      paths:
+      - backend:
+          serviceName: source-ip-app
+          servicePort: 80

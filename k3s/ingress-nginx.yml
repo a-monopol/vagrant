@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: source-ip-app
+spec:
+  selector:
+    matchLabels:
+      run: source-ip-app
+  template:
+    metadata:
+      labels:
+        run: source-ip-app
+    spec:
+      containers:
+      - image: k8s.gcr.io/echoserver:1.4
+        name: source-ip-app
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: source-ip-app
+spec:
+  type: ClusterIP
+  ports:
+    - name: "http-port"
+      protocol: "TCP"
+      port: 80
+      targetPort: 8080
+  selector:
+    app: source-ip-app
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: nginx.contendo.jp
+    http:
+      paths:
+      - backend:
+          serviceName: source-ip-app
+          servicePort: 80

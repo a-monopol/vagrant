@@ -1,0 +1,7 @@
+nodes:
+  - address:  192.168.33.10
+    internal_address:  192.168.33.10
+    user: rancher
+    role: [controlplane,worker,etcd]
+    ssh_key_path: ./.vagrant/machines/default/virtualbox/private_key
+    port: 22
